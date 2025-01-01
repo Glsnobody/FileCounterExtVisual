@@ -1,3 +1,8 @@
+锘縰sing System;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+
 namespace FileCounterExtVisual
 {
     public partial class Form1 : Form
@@ -15,32 +20,70 @@ namespace FileCounterExtVisual
                 {
                     string ruta = folderDialog.SelectedPath;
                     txtRuta.Text = ruta;
-                    ProcesarArchivos(ruta);
+                    ProcesarArchivosPorCarpeta(ruta);
                 }
             }
         }
 
-        private void ProcesarArchivos(string ruta)
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ProcesarArchivosPorCarpeta(string ruta)
         {
             if (Directory.Exists(ruta))
             {
-                // Obtener todos los archivos en la ruta
-                string[] archivos = Directory.GetFiles(ruta, "*.*", SearchOption.TopDirectoryOnly);
-
-                lblCantidadArchivos.Text = $"Cantidad total de archivos: {archivos.Length}";
-
-                // Agrupar archivos por extensi髇
-                var agrupadosPorExtension = archivos
-                    .GroupBy(archivo => Path.GetExtension(archivo).ToLower())
-                    .OrderBy(grupo => grupo.Key);
-
-                // Mostrar extensiones y cantidades en el TextBox
                 txtResultados.Clear();
-                foreach (var grupo in agrupadosPorExtension)
+
+                // Obtener el filtro seleccionado
+                string filtro = cmbFiltro.SelectedItem?.ToString() ?? string.Empty;
+                string[] archivosDirectos;
+
+                // Si el filtro est谩 vac铆o, procesar todos los archivos como en tu implementaci贸n original
+                if (string.IsNullOrEmpty(filtro))
                 {
-                    string extension = string.IsNullOrEmpty(grupo.Key) ? "Sin extensi髇" : grupo.Key;
-                    txtResultados.AppendText($"{extension}: {grupo.Count()}{Environment.NewLine}");
+                    archivosDirectos = Directory.GetFiles(ruta, "*.*", SearchOption.TopDirectoryOnly);
                 }
+                else
+                {
+                    // Si hay filtro, procesar solo los archivos que coincidan con la extensi贸n seleccionada
+                    archivosDirectos = Directory.GetFiles(ruta, $"*{filtro}", SearchOption.TopDirectoryOnly);
+                }
+
+                // Mostrar solo si hay archivos en el directorio principal
+                if (archivosDirectos.Length > 0)
+                {
+                    txtResultados.AppendText($"[Directorio Principal]{Environment.NewLine}");
+                    MostrarExtensionesYConteo(archivosDirectos);
+                }
+
+                // Obtener todas las subcarpetas del directorio seleccionado
+                string[] subcarpetas = Directory.GetDirectories(ruta);
+
+                // Si no hay subcarpetas, muestra un mensaje
+                if (subcarpetas.Length == 0)
+                {
+                    txtResultados.AppendText("No se encontraron subcarpetas en el directorio.\n");
+                }
+
+                // Procesar cada subcarpeta
+                foreach (var subcarpeta in subcarpetas)
+                {
+                    string[] archivosEnSubcarpeta;
+                    if (string.IsNullOrEmpty(filtro))
+                    {
+                        archivosEnSubcarpeta = Directory.GetFiles(subcarpeta, "*.*", SearchOption.AllDirectories);
+                    }
+                    else
+                    {
+                        archivosEnSubcarpeta = Directory.GetFiles(subcarpeta, $"*{filtro}", SearchOption.AllDirectories);
+                    }
+                    txtResultados.AppendText($"\n馃搧[Carpeta: {Path.GetFileName(subcarpeta)}]{Environment.NewLine}");
+                    MostrarExtensionesYConteo(archivosEnSubcarpeta);
+                }
+
+                lblCantidadArchivos.Text = $"Cantidad total de archivos: {archivosDirectos.Length + subcarpetas.Sum(c => Directory.GetFiles(c, $"*{filtro}", SearchOption.AllDirectories).Length)}";
             }
             else
             {
@@ -48,9 +91,41 @@ namespace FileCounterExtVisual
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void cmbFiltro_SelectedIndexChanged(object sender, EventArgs e)
         {
+            string filtro = cmbFiltro.Text?.Trim().ToLower();  // Obtener lo que el usuario escribe
 
+            // Si el filtro no comienza con un punto, agregarlo
+            if (!string.IsNullOrEmpty(filtro) && !filtro.StartsWith("."))
+            {
+                filtro = "." + filtro;  // Convertir "jpg" en ".jpg"
+            }
+
+            string ruta = txtRuta.Text;  // Asumiendo que la ruta ya est谩 seleccionada
+            ProcesarArchivosPorCarpeta(ruta);  // Llamamos a la funci贸n sin modificarla
+        }
+
+
+
+
+        private void MostrarExtensionesYConteo(string[] archivos)
+        {
+            if (archivos.Length == 0)
+            {
+                txtResultados.AppendText("No se encontraron archivos en esta carpeta.\n");
+                return;
+            }
+
+            // Agrupar archivos por extensi贸n
+            var agrupadosPorExtension = archivos
+                .GroupBy(archivo => Path.GetExtension(archivo).ToLower())
+                .OrderBy(grupo => grupo.Key);
+
+            foreach (var grupo in agrupadosPorExtension)
+            {
+                string extension = string.IsNullOrEmpty(grupo.Key) ? "Sin extensi贸n" : grupo.Key;
+                txtResultados.AppendText($"    {extension}: {grupo.Count()}{Environment.NewLine}");
+            }
         }
     }
 }
