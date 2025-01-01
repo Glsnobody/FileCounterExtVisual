@@ -1,6 +1,6 @@
 ﻿namespace FileCounterExtVisual
 {
-    partial class Form1
+    partial class FileCounterExtVisualWindow
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileCounterExtVisualWindow));
             txtRuta = new TextBox();
             btnBrowse = new Button();
             lblCantidadArchivos = new Label();
@@ -109,7 +109,7 @@
             cmbFiltro.Size = new Size(368, 36);
             cmbFiltro.TabIndex = 7;
             // 
-            // Form1
+            // FileCounterExtVisualWindow
             // 
             AutoScaleDimensions = new SizeF(11F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -124,7 +124,7 @@
             Controls.Add(txtRuta);
             Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Margin = new Padding(4);
-            Name = "Form1";
+            Name = "FileCounterExtVisualWindow";
             Text = "FileCounterExt 1.1";
             Load += Form1_Load;
             ResumeLayout(false);

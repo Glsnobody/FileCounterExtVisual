@@ -5,9 +5,9 @@ using System.Windows.Forms;
 
 namespace FileCounterExtVisual
 {
-    public partial class Form1 : Form
+    public partial class FileCounterExtVisualWindow : Form
     {
-        public Form1()
+        public FileCounterExtVisualWindow()
         {
             InitializeComponent();
         }
